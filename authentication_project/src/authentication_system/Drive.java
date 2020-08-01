@@ -1,10 +1,13 @@
 package authentication_system;
 
 public class Drive {
+	
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+		
+		AuthenticationSystem as = new AuthenticationSystem();
+		as.run();
 	}
 
+	
 }
