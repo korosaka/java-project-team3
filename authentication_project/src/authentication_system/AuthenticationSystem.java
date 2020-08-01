@@ -5,15 +5,26 @@ import java.util.Scanner;
 
 import api.API;
 import auth.Token;
+import exceptions.AuthorizationException;
 import exceptions.PasswordInvalidException;
 import exceptions.UserNameInvalidException;
 import model.Role;
 import model.User;
 
 public class AuthenticationSystem {
-	
+
 	Token token;
-	Scanner scanner = new Scanner(System.in);
+	Scanner scanner;
+	
+	public AuthenticationSystem() {
+		super();
+		this.token = null;
+		scanner = new Scanner(System.in);
+	}
+
+	public void setToken(Token token) {
+		this.token = token;
+	}
 
 	public void run() {
 		while (true) {
@@ -24,10 +35,11 @@ public class AuthenticationSystem {
 				System.out.println("Quit[3]");
 				int num = scanner.nextInt();
 				if (num == 1) {
-					token = signInFlow();
+					signInFlow();
 				} else if (num == 2) {
-					token = signUpFlow();
+					signUpFlow();
 				} else if (num == 3) {
+					scanner.close();
 					break;
 				}
 			} else {
@@ -37,9 +49,8 @@ public class AuthenticationSystem {
 				int num2 = scanner.nextInt();
 				if (num2 == 1) {
 					signOut();
-					token = null;
 				} else if (num2 == 2) {
-					doSomething(token);
+					requestAPI();
 				}
 			}
 		}
@@ -47,30 +58,39 @@ public class AuthenticationSystem {
 	
 	private void signOut() {
 		System.out.println("sign out");
+		try {
+			API.signOut(token);
+			setToken(null);
+		} catch (SQLException e) {
+			System.err.println(e.getMessage());
+		}
 	}
 	
-	private void doSomething(Token token) {
-		System.out.println("do Something");
-		API.doSomething(token);
+	private void requestAPI() {
+		try {
+			API.doSomething(token);
+		} catch (AuthorizationException e) {
+			System.err.println(e.getMessage());
+			setToken(null);
+		}
 	}
 	
-	private Token signInFlow() {
+	private void signInFlow() {
 		scanner = new Scanner(System.in);
 		System.out.println("Type in username");
 		String name = scanner.nextLine();
 		System.out.println("Type in password");
 		String password = scanner.nextLine();
-		Token token;
 		try {
-			token = API.signIn(name, password);
-			return token;
+			Token token = API.signIn(name, password);
+			setToken(token);
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
+			setToken(null);
 		}
-		return null;
 	}
 	
-	private Token signUpFlow() {
+	private void signUpFlow() {
 		scanner = new Scanner(System.in);
 		System.out.println("Type in username");
 		String name = scanner.nextLine();
@@ -80,13 +100,12 @@ public class AuthenticationSystem {
 		System.out.println("admin[1]");
 		System.out.println("normal[any other key]");
 		Role role = scanner.nextInt() == 1 ? Role.ADMIN : Role.NORMAL;
-		Token token;
 		try {
-			token = API.signUp(name, password, role);
-			return token;
+			Token token = API.signUp(name, password, role);
+			setToken(token);
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
+			setToken(null);
 		}
-		return null;
 	}
 }

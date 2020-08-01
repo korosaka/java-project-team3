@@ -37,22 +37,17 @@ public class API {
 		return new Token(user);
 	}
 	
-	public static void signOut(Token token) {
+	public static void signOut(Token token) throws SQLException {
 		System.out.println("Token removed");
+		token.remove();
 	}
 	
-	public static void doSomething(Token token) {
+	public static void doSomething(Token token) throws AuthorizationException {
 		// authorizer
 		System.out.println("isTokenValid: " + isTokenValid(token));
-		isTokenValid(token);
 	}
 	
-	private static boolean isTokenValid(Token token) {
-		try {
-			return new TokenAuthorizer(token).authorize();
-		} catch (AuthorizationException e) {
-			System.err.println(e.getMessage());
-			return false;
-		}
+	private static boolean isTokenValid(Token token) throws AuthorizationException {
+		return new TokenAuthorizer(token).authorize();
 	}
 }

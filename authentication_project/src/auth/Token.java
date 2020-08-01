@@ -32,6 +32,14 @@ public class Token {
 		preStmt.setString(1, this.encodedString);
 		preStmt.executeUpdate();
 	}
+	
+	public void remove() throws SQLException {
+		String deleteQuery = "DELETE FROM Token WHERE id = ?";
+		Connection conn = DBConnection.getConnection();
+		PreparedStatement preStmt = conn.prepareStatement(deleteQuery);
+		preStmt.setString(1, this.encodedString);
+		preStmt.executeUpdate();
+	}
 
 	private String getEncodedToken(String str) {
 		str = str + " " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));

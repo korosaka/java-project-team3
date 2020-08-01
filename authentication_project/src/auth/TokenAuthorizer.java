@@ -5,6 +5,13 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 
 import db.DBConnection;
 import exceptions.AuthorizationException;
@@ -12,6 +19,7 @@ import exceptions.AuthorizationException;
 public class TokenAuthorizer extends Authorizer {
 
 	private Token token;
+	private final static int EXPIRATION_DURATION = 60;
 	
 	public TokenAuthorizer(Token token) {
 		super();
@@ -29,10 +37,21 @@ public class TokenAuthorizer extends Authorizer {
 			preStmt.setString(1, token.getEncodedString());
 			ResultSet rs = preStmt.executeQuery();
 			rs.next();
-			Date createdAt = rs.getDate("created_at");
-			System.out.println("createdAt:" + createdAt);
+			Time createdAt = rs.getTime("created_at");
+			System.out.println("createdAt:" + createdAt.toLocalTime());
+			System.out.println("local time:" + LocalDateTime.now());
+			//TODO: expiration check
 
-			String userName = token.getDecodedString().split(" ")[0];
+			String[] decodedStrArr = token.getDecodedString().split(" ");
+			String userName = decodedStrArr[0];
+			System.out.println(decodedStrArr[1]); 
+			Duration p = Duration.between(createdAt.toLocalTime(), LocalDateTime.now());
+			if ((p.getSeconds()-28800) > EXPIRATION_DURATION) {
+				System.out.println("Session Expired");
+				token.remove();
+				throw new AuthorizationException();
+			}
+			System.out.println("p seconds: " + (p.getSeconds() - 28800));
 			String userQuery = "SELECT * FROM User WHERE name = ?";
 			preStmt = conn.prepareStatement(userQuery);
 			preStmt.setString(1, userName);
