@@ -31,6 +31,7 @@ public class Token {
 		PreparedStatement preStmt = conn.prepareStatement(insertQuery);
 		preStmt.setString(1, this.encodedString);
 		preStmt.executeUpdate();
+		conn.close();
 	}
 	
 	public void remove() throws SQLException {
@@ -39,6 +40,7 @@ public class Token {
 		PreparedStatement preStmt = conn.prepareStatement(deleteQuery);
 		preStmt.setString(1, this.encodedString);
 		preStmt.executeUpdate();
+		conn.close();
 	}
 
 	private String getEncodedToken(String str) {

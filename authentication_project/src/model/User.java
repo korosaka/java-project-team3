@@ -35,6 +35,7 @@ public class User {
 		preStmt.setString(2, getPassword());
 		preStmt.setBoolean(3, getRole() == Role.ADMIN);
 		preStmt.executeUpdate();
+		conn.close();
 	}
 	
 	public User getUserFromDB() throws SQLException {
@@ -46,6 +47,7 @@ public class User {
 		ResultSet rs = preStmt.executeQuery();
 		rs.next();
 		setRole(rs.getBoolean(4) == true ? Role.ADMIN : Role.NORMAL);
+		conn.close();
 		return this;
 	}
 	
