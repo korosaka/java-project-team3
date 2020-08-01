@@ -32,7 +32,7 @@ public class TokenAuthorizer extends Authorizer {
 			Date createdAt = rs.getDate("created_at");
 			System.out.println("createdAt:" + createdAt);
 
-			String userName = token.getDecodedString();
+			String userName = token.getDecodedString().split(" ")[0];
 			String userQuery = "SELECT * FROM User WHERE name = ?";
 			preStmt = conn.prepareStatement(userQuery);
 			preStmt.setString(1, userName);

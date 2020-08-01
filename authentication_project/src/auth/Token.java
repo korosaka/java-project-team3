@@ -4,6 +4,8 @@ package auth;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 
 import db.DBConnection;
@@ -32,6 +34,7 @@ public class Token {
 	}
 
 	private String getEncodedToken(String str) {
+		str = str + " " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 		return new String(Base64.getEncoder().encode(str.getBytes()));
 	}
 	

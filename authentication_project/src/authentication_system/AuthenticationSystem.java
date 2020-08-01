@@ -51,6 +51,7 @@ public class AuthenticationSystem {
 	
 	private void doSomething(Token token) {
 		System.out.println("do Something");
+		API.doSomething(token);
 	}
 	
 	private Token signInFlow() {

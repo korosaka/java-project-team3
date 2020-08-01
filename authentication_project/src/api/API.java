@@ -43,6 +43,7 @@ public class API {
 	
 	public static void doSomething(Token token) {
 		// authorizer
+		System.out.println("isTokenValid: " + isTokenValid(token));
 		isTokenValid(token);
 	}
 	
