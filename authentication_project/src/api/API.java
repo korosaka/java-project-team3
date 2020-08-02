@@ -74,9 +74,13 @@ public class API {
 	
 	public static SignOutResponse signOut(SignOutRequest request) {
 		try {
+			isTokenValid(request.getToken());
 			request.getToken().remove();
 		} catch (SQLException e) {
 			return new SignOutResponse(Result.FAILURE, Status.DB_ERROR);
+		} catch (AuthorizationException e) {
+			// TODO Auto-generated catch block
+			return new SignOutResponse(Result.FAILURE, Status.AUTHORIZATION_ERROR);
 		}
 		return new SignOutResponse(Result.SUCCESS, Status.USER_LOGOUT_SUCCESS);
 	}
@@ -90,7 +94,7 @@ public class API {
 			System.out.println("======================");
 			System.out.println();
 		} catch (AuthorizationException e) {
-			return new DoSomethingResponse(Result.SUCCESS, Status.AUTHORIZATION_ERROR);
+			return new DoSomethingResponse(Result.FAILURE, Status.AUTHORIZATION_ERROR);
 		}
 		
 		return new DoSomethingResponse(Result.SUCCESS, Status.DO_SOMETHING_SUCCESS);

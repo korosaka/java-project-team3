@@ -19,6 +19,7 @@ import exceptions.AuthorizationException;
 public class TokenAuthorizer extends Authorizer {
 
 	private Token token;
+	
 	private final static int EXPIRATION_DURATION = 60;
 	
 	public TokenAuthorizer(Token token) {
@@ -29,7 +30,10 @@ public class TokenAuthorizer extends Authorizer {
 	@Override
 	public boolean authorize() throws AuthorizationException {
 		// TODO check if token is valid, 1: time, 2: user exists
+		System.out.println("token?::::" + token);
+
 		if (token == null) throw new AuthorizationException();
+		
 		try {
 			Connection conn = DBConnection.getConnection();
 			String tokenQuery = "SELECT * FROM Token WHERE id = ?";
@@ -58,9 +62,15 @@ public class TokenAuthorizer extends Authorizer {
 			rs = preStmt.executeQuery();
 			rs.next();
 			int id = rs.getInt("id");
+			conn.close();
+			if (id <= 0) {
+				token.remove();
+				throw new AuthorizationException();
+			}
 			return id > 0;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
+			System.out.println(e.getMessage());
 			throw new AuthorizationException();
 		}
 	}

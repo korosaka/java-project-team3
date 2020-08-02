@@ -38,6 +38,15 @@ public class User {
 		conn.close();
 	}
 	
+	public void remove() throws SQLException {
+		String deleteQuery = "DELETE FROM User WHERE name = ?";
+		Connection conn = DBConnection.getConnection();
+		PreparedStatement preStmt = conn.prepareStatement(deleteQuery);
+		preStmt.setString(1, getName());
+		preStmt.executeUpdate();
+		conn.close();
+	}
+	
 	public User getUserFromDB() throws SQLException {
 		String query = "SELECT * FROM User WHERE name = ? AND password = ?";
 		Connection conn = DBConnection.getConnection();
