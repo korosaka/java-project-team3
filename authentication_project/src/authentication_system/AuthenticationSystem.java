@@ -1,15 +1,18 @@
 package authentication_system;
 
-import java.sql.SQLException;
 import java.util.Scanner;
 
 import api.API;
 import auth.Token;
-import exceptions.AuthorizationException;
-import exceptions.PasswordInvalidException;
-import exceptions.UserNameInvalidException;
 import model.Role;
-import model.User;
+import requests.DoSomethingRequest;
+import requests.SignInRequest;
+import requests.SignOutRequest;
+import requests.SignUpRequest;
+import responses.DoSomethingResponse;
+import responses.SignInResponse;
+import responses.SignOutResponse;
+import responses.SignUpResponse;
 
 public class AuthenticationSystem {
 
@@ -29,10 +32,13 @@ public class AuthenticationSystem {
 	public void run() {
 		while (true) {
 			if (token == null) {
+				System.out.println("======================");
 				System.out.println("Choose from below.");
 				System.out.println("Sign in[1]");
 				System.out.println("Sign up[2]");
 				System.out.println("Quit[3]");
+				System.out.println("======================");
+				System.out.println();
 				int num = scanner.nextInt();
 				if (num == 1) {
 					signInFlow();
@@ -43,9 +49,12 @@ public class AuthenticationSystem {
 					break;
 				}
 			} else {
+				System.out.println("======================");
 				System.out.println("You are logged in. Choose from below.");
 				System.out.println("Sign out[1]");
 				System.out.println("Do something[2]");
+				System.out.println("======================");
+				System.out.println();
 				int num2 = scanner.nextInt();
 				if (num2 == 1) {
 					signOut();
@@ -57,20 +66,25 @@ public class AuthenticationSystem {
 	}
 	
 	private void signOut() {
-		System.out.println("sign out");
-		try {
-			API.signOut(token);
+		SignOutResponse resp = (SignOutResponse)API.call(new SignOutRequest(token));
+		switch(resp.getResult()) {
+		case SUCCESS:
 			setToken(null);
-		} catch (SQLException e) {
-			System.err.println(e.getMessage());
+			break;
+		case FAILURE:
+		default:
+			System.err.println(resp.getStatus());
 		}
 	}
 	
 	private void requestAPI() {
-		try {
-			API.doSomething(token);
-		} catch (AuthorizationException e) {
-			System.err.println(e.getMessage());
+		DoSomethingResponse resp = (DoSomethingResponse)API.call(new DoSomethingRequest(token));
+		switch(resp.getResult()) {
+		case SUCCESS:
+			break;
+		case FAILURE:
+		default:
+			System.err.println(resp.getStatus());
 			setToken(null);
 		}
 	}
@@ -81,11 +95,14 @@ public class AuthenticationSystem {
 		String name = scanner.nextLine();
 		System.out.println("Type in password");
 		String password = scanner.nextLine();
-		try {
-			Token token = API.signIn(name, password);
-			setToken(token);
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
+		SignInResponse resp = (SignInResponse)API.call(new SignInRequest(name, password));
+		switch(resp.getResult()) {
+		case SUCCESS:
+			setToken(resp.getToken());
+			break;
+		case FAILURE:
+		default:
+			System.err.println(resp.getStatus());
 			setToken(null);
 		}
 	}
@@ -100,11 +117,14 @@ public class AuthenticationSystem {
 		System.out.println("admin[1]");
 		System.out.println("normal[any other key]");
 		Role role = scanner.nextInt() == 1 ? Role.ADMIN : Role.NORMAL;
-		try {
-			Token token = API.signUp(name, password, role);
-			setToken(token);
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
+		SignUpResponse resp = (SignUpResponse)API.call(new SignUpRequest(name, password, role));
+		switch(resp.getResult()) {
+		case SUCCESS:
+			setToken(resp.getToken());
+			break;
+		case FAILURE:
+		default:
+			System.err.println(resp.getStatus());
 			setToken(null);
 		}
 	}
