@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Base64;
 
 import db.DBConnection;
 
@@ -32,10 +33,14 @@ public class User {
 		Connection conn = DBConnection.getConnection();
 		PreparedStatement preStmt = conn.prepareStatement(insertQuery);
 		preStmt.setString(1, getName());
-		preStmt.setString(2, getPassword());
+		preStmt.setString(2, getEncodedPassword(getPassword()));
 		preStmt.setBoolean(3, getRole() == Role.ADMIN);
 		preStmt.executeUpdate();
 		conn.close();
+	}
+	
+	private String getEncodedPassword(String str) {
+		return new String(Base64.getEncoder().encode(str.getBytes()));
 	}
 	
 	public void remove() throws SQLException {
@@ -52,7 +57,7 @@ public class User {
 		Connection conn = DBConnection.getConnection();
 		PreparedStatement preStmt = conn.prepareStatement(query);
 		preStmt.setString(1, getName());
-		preStmt.setString(2, getPassword());
+		preStmt.setString(2, getEncodedPassword(getPassword()));
 		ResultSet rs = preStmt.executeQuery();
 		rs.next();
 		setRole(rs.getBoolean(4) == true ? Role.ADMIN : Role.NORMAL);
