@@ -1,5 +1,6 @@
 package authentication_system;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import api.API;
@@ -39,7 +40,11 @@ public class AuthenticationSystem {
 				System.out.println("Quit[3]");
 				System.out.println("======================");
 				System.out.println();
-				int num = scanner.nextInt();
+				int num = inputNum();
+				if (num == -1) {
+					System.out.println("\n" + "You must input NUMBER" + "\n");
+					continue;
+				}
 				if (num == 1) {
 					signInFlow();
 				} else if (num == 2) {
@@ -55,7 +60,11 @@ public class AuthenticationSystem {
 				System.out.println("Do something[2]");
 				System.out.println("======================");
 				System.out.println();
-				int num2 = scanner.nextInt();
+				int num2 = inputNum();
+				if (num2 == -1) {
+					System.out.println("\n" + "You must input NUMBER" + "\n");
+					continue;
+				}
 				if (num2 == 1) {
 					signOut();
 				} else if (num2 == 2) {
@@ -63,6 +72,16 @@ public class AuthenticationSystem {
 				}
 			}
 		}
+	}
+	
+	private int inputNum() {
+		int num = -1;
+		try {
+			num = scanner.nextInt();
+		} catch(InputMismatchException e) {
+			scanner.next(); // 無限ループ回避のため
+		}
+		return num;
 	}
 	
 	private void signOut() {
@@ -116,7 +135,7 @@ public class AuthenticationSystem {
 		System.out.println("choose your role");
 		System.out.println("admin[1]");
 		System.out.println("normal[any other key]");
-		Role role = scanner.nextInt() == 1 ? Role.ADMIN : Role.NORMAL;
+		Role role = inputNum() == 1 ? Role.ADMIN : Role.NORMAL;
 		SignUpResponse resp = (SignUpResponse)API.call(new SignUpRequest(name, password, role));
 		switch(resp.getResult()) {
 		case SUCCESS:
