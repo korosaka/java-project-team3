@@ -43,6 +43,7 @@ public class TokenAuthorizer extends Authorizer {
 				token.remove();
 				throw new AuthorizationException();
 			}
+			
 			String userQuery = "SELECT * FROM User WHERE name = ?";
 			preStmt = conn.prepareStatement(userQuery);
 			preStmt.setString(1, userName);
@@ -55,7 +56,7 @@ public class TokenAuthorizer extends Authorizer {
 				throw new AuthorizationException();
 			}
 			return id > 0;
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
 			throw new AuthorizationException();

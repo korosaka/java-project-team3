@@ -17,9 +17,12 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import db.DBConnection;
 import model.User;
 
@@ -53,7 +56,7 @@ public class Token {
 		return jwtToken;
 	}
 	
-	public Claims parseJwt() throws SignatureException {
+	public Claims parseJwt() throws ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException {
 		Key hmacKey = new SecretKeySpec(DatatypeConverter.parseBase64Binary(SECRET), 
                 SignatureAlgorithm.HS256.getJcaName());
 		Claims claims = Jwts.parser()
