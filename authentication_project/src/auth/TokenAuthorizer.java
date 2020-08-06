@@ -29,8 +29,6 @@ public class TokenAuthorizer extends Authorizer {
 
 	@Override
 	public boolean authorize() throws AuthorizationException {
-		// TODO check if token is valid, 1: time, 2: user exists
-		System.out.println("token?::::" + token);
 
 		if (token == null) throw new AuthorizationException();
 		
@@ -42,20 +40,15 @@ public class TokenAuthorizer extends Authorizer {
 			ResultSet rs = preStmt.executeQuery();
 			rs.next();
 			Time createdAt = rs.getTime("created_at");
-			System.out.println("createdAt:" + createdAt.toLocalTime());
-			System.out.println("local time:" + LocalDateTime.now());
-			//TODO: expiration check
 
 			String[] decodedStrArr = token.getDecodedString().split(" ");
 			String userName = decodedStrArr[0];
-			System.out.println(decodedStrArr[1]); 
 			Duration p = Duration.between(createdAt.toLocalTime(), LocalDateTime.now());
 			if ((p.getSeconds()-28800) > EXPIRATION_DURATION) {
 				System.out.println("Session Expired");
 				token.remove();
 				throw new AuthorizationException();
 			}
-			System.out.println("p seconds: " + (p.getSeconds() - 28800));
 			String userQuery = "SELECT * FROM User WHERE name = ?";
 			preStmt = conn.prepareStatement(userQuery);
 			preStmt.setString(1, userName);

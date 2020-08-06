@@ -6,11 +6,11 @@ import java.util.Scanner;
 import api.API;
 import auth.Token;
 import model.Role;
-import requests.DoSomethingRequest;
+import requests.GetLoggedInUserRequest;
 import requests.SignInRequest;
 import requests.SignOutRequest;
 import requests.SignUpRequest;
-import responses.DoSomethingResponse;
+import responses.GetLoggedInUserResponse;
 import responses.SignInResponse;
 import responses.SignOutResponse;
 import responses.SignUpResponse;
@@ -57,7 +57,7 @@ public class AuthenticationSystem {
 				System.out.println("======================");
 				System.out.println("You are logged in. Choose from below.");
 				System.out.println("Sign out[1]");
-				System.out.println("Do something[2]");
+				System.out.println("get LoggedIn user info[2]");
 				System.out.println("======================");
 				System.out.println();
 				int num2 = inputNum();
@@ -68,7 +68,7 @@ public class AuthenticationSystem {
 				if (num2 == 1) {
 					signOut();
 				} else if (num2 == 2) {
-					requestAPI();
+					getLoggedInUser();
 				}
 			}
 		}
@@ -96,10 +96,11 @@ public class AuthenticationSystem {
 		}
 	}
 	
-	private void requestAPI() {
-		DoSomethingResponse resp = (DoSomethingResponse)API.call(new DoSomethingRequest(token));
+	private void getLoggedInUser() {
+		GetLoggedInUserResponse resp = (GetLoggedInUserResponse)API.call(new GetLoggedInUserRequest(token));
 		switch(resp.getResult()) {
 		case SUCCESS:
+			System.out.println(resp.getUser());
 			break;
 		case FAILURE:
 		default:

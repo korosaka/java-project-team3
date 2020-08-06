@@ -28,6 +28,11 @@ public class User {
 		setPassword(password);
 	}
 	
+	public User(String name) {
+		super();
+		setName(name);
+	}
+	
 	public void create() throws SQLException {
 		String insertQuery = "INSERT INTO User (name, password, isAdmin) VALUES (?, ?, ?)";
 		Connection conn = DBConnection.getConnection();
@@ -53,6 +58,23 @@ public class User {
 	}
 	
 	public User getUserFromDB() throws SQLException {
+		String query = "SELECT * FROM User WHERE name = ?";
+		Connection conn = DBConnection.getConnection();
+		PreparedStatement preStmt = conn.prepareStatement(query);
+		preStmt.setString(1, getName());
+		ResultSet rs = preStmt.executeQuery();
+		rs.next();
+		setRole(rs.getBoolean(4) == true ? Role.ADMIN : Role.NORMAL);
+		conn.close();
+		return this;
+	}
+	
+	@Override
+	public String toString() {
+		return "User [name=" + name + ", role=" + role + "]";
+	}
+
+	public User checkIfUserExistsAndReturn() throws SQLException {
 		String query = "SELECT * FROM User WHERE name = ? AND password = ?";
 		Connection conn = DBConnection.getConnection();
 		PreparedStatement preStmt = conn.prepareStatement(query);
