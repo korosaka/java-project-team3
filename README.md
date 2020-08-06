@@ -1,10 +1,27 @@
 # java-project-team3
-## Musashi, Koro, Chihiro, Chizuru
+CICCC's project that demonstrates user authentification and authorization using jwt. 
 
-## DB Schema
+### Member
+- Musashi
+- Koro
+- Chihiro
+- Chizuru
+
+### DB Schema
 ![db_schema_for_java_project](https://user-images.githubusercontent.com/14939662/89093735-c6e6c880-d371-11ea-84c6-fe9a42f0ccc3.jpg)
 
 ### how to setup
+- replace the placeholders with your credentials
+```
+package db;
+
+public class DBConstants {
+	public static final String USERNAME = "YOUR_USERNAME";
+	public static final String PASSWORD = "YOUR_PASSWORD";
+	public static final String CONN_STRING = "jdbc:mysql://localhost:3306/java_project?serverTimezone=UTC";
+}
+
+```
 - create db
 After create db, run the command below in order to create database.
 ```
