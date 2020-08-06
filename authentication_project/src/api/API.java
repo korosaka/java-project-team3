@@ -65,7 +65,9 @@ public class API {
 			return new SignInResponse(Result.FAILURE, Status.PASSWORD_ERROR);
 		}
 		try {
-			user = user.checkIfUserExistsAndReturn();
+			if (!user.checkIfUserValid()) {
+				return new SignInResponse(Result.FAILURE, Status.AUTHENTICATION_ERROR);
+			}
 			return new SignInResponse(Result.SUCCESS, Status.USER_SUCCESSFULLY_LOGGEDIN, new Token(user));
 		} catch (SQLException e) {
 			return new SignInResponse(Result.FAILURE, Status.DB_ERROR);
