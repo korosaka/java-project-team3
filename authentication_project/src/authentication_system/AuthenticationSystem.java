@@ -14,6 +14,7 @@ import responses.GetLoggedInUserResponse;
 import responses.SignInResponse;
 import responses.SignOutResponse;
 import responses.SignUpResponse;
+import utils.UserValidation;
 
 public class AuthenticationSystem {
 
@@ -126,13 +127,11 @@ public class AuthenticationSystem {
 			setToken(null);
 		}
 	}
-	
+
 	private void signUpFlow() {
 		scanner = new Scanner(System.in);
-		System.out.println("Type in username");
-		String name = scanner.nextLine();
-		System.out.println("Type in password");
-		String password = scanner.nextLine();
+		String name = inputUserName();
+		String password = inputPassword();
 		System.out.println("choose your role");
 		System.out.println("admin[1]");
 		System.out.println("normal[any other key]");
@@ -147,5 +146,27 @@ public class AuthenticationSystem {
 			System.err.println(resp.getStatus());
 			setToken(null);
 		}
+	}
+	
+	private String inputUserName() {
+		String inputName = "";
+		while (true) {
+			System.out.println("Type in username");
+			inputName = scanner.nextLine();
+			if(UserValidation.usernameValidation(inputName)) break;
+			System.out.println("User name should not be empty and less than 20 characters");
+		}
+		return inputName;
+	}
+	
+	private String inputPassword() {
+		String inputPassword = "";
+		while(true) {
+			System.out.println("Type in password");
+			inputPassword = scanner.nextLine();
+			if(UserValidation.passwordValidation(inputPassword)) break;
+			System.out.println("Password should be more than 8 and less than 16 characters");
+		}
+		return inputPassword;
 	}
 }
