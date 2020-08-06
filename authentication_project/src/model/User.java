@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.Base64;
 
 import db.DBConnection;
+import utils.PasswordUtil;
 
 public class User {
 
@@ -38,14 +39,10 @@ public class User {
 		Connection conn = DBConnection.getConnection();
 		PreparedStatement preStmt = conn.prepareStatement(insertQuery);
 		preStmt.setString(1, getName());
-		preStmt.setString(2, getEncodedPassword(getPassword()));
+		preStmt.setString(2, PasswordUtil.hashPassword(getPassword()));
 		preStmt.setBoolean(3, getRole() == Role.ADMIN);
 		preStmt.executeUpdate();
 		conn.close();
-	}
-	
-	private String getEncodedPassword(String str) {
-		return new String(Base64.getEncoder().encode(str.getBytes()));
 	}
 	
 	public void remove() throws SQLException {
@@ -74,17 +71,20 @@ public class User {
 		return "User [name=" + name + ", role=" + role + "]";
 	}
 
-	public User checkIfUserExistsAndReturn() throws SQLException {
-		String query = "SELECT * FROM User WHERE name = ? AND password = ?";
+	public boolean checkIfUserValid() throws SQLException {
+		String query = "SELECT * FROM User WHERE name = ?";
 		Connection conn = DBConnection.getConnection();
 		PreparedStatement preStmt = conn.prepareStatement(query);
 		preStmt.setString(1, getName());
-		preStmt.setString(2, getEncodedPassword(getPassword()));
 		ResultSet rs = preStmt.executeQuery();
-		rs.next();
+		if (!rs.next()) {
+			conn.close();
+			return false;
+		};
 		setRole(rs.getBoolean(4) == true ? Role.ADMIN : Role.NORMAL);
+		String passwordInDB = rs.getString("password");
 		conn.close();
-		return this;
+		return PasswordUtil.compare(getPassword().toCharArray(), passwordInDB.toCharArray());
 	}
 	
 	public void setName(String name) {

@@ -52,6 +52,7 @@ public class API {
 			user.create();
 			return new SignUpResponse(Result.SUCCESS, Status.USER_SUCCESSFULLY_CREATED, new Token(user));
 		} catch (SQLException e) {
+			System.out.println(e.getMessage());
 			return new SignUpResponse(Result.FAILURE, Status.DB_ERROR);
 		}
 	}
@@ -65,7 +66,9 @@ public class API {
 			return new SignInResponse(Result.FAILURE, Status.PASSWORD_ERROR);
 		}
 		try {
-			user = user.checkIfUserExistsAndReturn();
+			if (!user.checkIfUserValid()) {
+				return new SignInResponse(Result.FAILURE, Status.AUTHENTICATION_ERROR);
+			}
 			return new SignInResponse(Result.SUCCESS, Status.USER_SUCCESSFULLY_LOGGEDIN, new Token(user));
 		} catch (SQLException e) {
 			return new SignInResponse(Result.FAILURE, Status.DB_ERROR);
@@ -89,7 +92,7 @@ public class API {
 		// authorizer
 		try {
 			isTokenValid(request.getToken());
-			String username = request.getToken().getDecodedString().split(" ")[0];
+			String username = request.getToken().parseJwt().getSubject();
 			User user = new User(username).getUserFromDB();
 			return new GetLoggedInUserResponse(Result.SUCCESS, Status.DO_SOMETHING_SUCCESS, user);
 		} catch (AuthorizationException e) {

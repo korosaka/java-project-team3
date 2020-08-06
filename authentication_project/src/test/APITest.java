@@ -132,7 +132,7 @@ class APITest {
 	void signIn_failure_password_wrong() {
 		SignInResponse resp = (SignInResponse)API.call(new SignInRequest(loggedInUser.getName(), "dummy_password"));
 		assertEquals(resp.getResult(), Result.FAILURE);
-		assertEquals(resp.getStatus(), Status.DB_ERROR);
+		assertEquals(resp.getStatus(), Status.AUTHENTICATION_ERROR);
 		assertNull(resp.getToken());
 	}
 	
@@ -148,7 +148,7 @@ class APITest {
 	void signIn_failure_name_wrong() {
 		SignInResponse resp = (SignInResponse)API.call(new SignInRequest("wrong_name", loggedInUser.getPassword()));
 		assertEquals(resp.getResult(), Result.FAILURE);
-		assertEquals(resp.getStatus(), Status.DB_ERROR);
+		assertEquals(resp.getStatus(), Status.AUTHENTICATION_ERROR);
 		assertNull(resp.getToken());
 	}
 	

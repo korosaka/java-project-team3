@@ -1,54 +1,87 @@
 package auth;
 
 
+import java.security.Key;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Base64;
+import java.util.Date;
+import java.util.UUID;
 
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import db.DBConnection;
 import model.User;
 
 public class Token {
 
-	private String encodedString;
+	private String jwtToken;
+	public static final String SECRET = "asdfSFS34wfsdfsdfSDSD32dfsddDDerQSNCK34SOWEK5354fdgdf4";
 
-	public String getEncodedString() {
-		return encodedString;
+	public String getJwtToken() {
+		return jwtToken;
 	}
 
 	public Token(User user) throws SQLException {
 		super();
-		setToken(user.getName());
+		setToken(createToken(user.getName()));
+	}
+	
+	private String createToken(String username) {
+		Instant now = Instant.now();
+
+		Key hmacKey = new SecretKeySpec(DatatypeConverter.parseBase64Binary(SECRET), 
+		                            SignatureAlgorithm.HS256.getJcaName());
+		String jwtToken = Jwts.builder()
+				.claim("name", username)
+				.setSubject(username)
+				.setId(UUID.randomUUID().toString())
+				.setIssuedAt(Date.from(now))
+				.setExpiration(Date.from(now.plus(5l, ChronoUnit.MINUTES)))
+				.signWith(SignatureAlgorithm.HS256, hmacKey)
+				.compact();
+		return jwtToken;
+	}
+	
+	public Claims parseJwt() throws ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException {
+		Key hmacKey = new SecretKeySpec(DatatypeConverter.parseBase64Binary(SECRET), 
+                SignatureAlgorithm.HS256.getJcaName());
+		Claims claims = Jwts.parser()
+					.setSigningKey(hmacKey)
+					.parseClaimsJws(jwtToken)
+					.getBody();
+		return claims;
 	}
 	
 	private void setToken(String token) throws SQLException {
-		this.encodedString = getEncodedToken(token);
 		String insertQuery = "INSERT INTO Token (id) VALUES (?)";
 		Connection conn = DBConnection.getConnection();
 		PreparedStatement preStmt = conn.prepareStatement(insertQuery);
-		preStmt.setString(1, this.encodedString);
+		preStmt.setString(1, token);
 		preStmt.executeUpdate();
 		conn.close();
+		jwtToken = token;
 	}
 	
 	public void remove() throws SQLException {
 		String deleteQuery = "DELETE FROM Token WHERE id = ?";
 		Connection conn = DBConnection.getConnection();
 		PreparedStatement preStmt = conn.prepareStatement(deleteQuery);
-		preStmt.setString(1, this.encodedString);
+		preStmt.setString(1, this.jwtToken);
 		preStmt.executeUpdate();
 		conn.close();
-	}
-
-	private String getEncodedToken(String str) {
-		str = str + " " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-		return new String(Base64.getEncoder().encode(str.getBytes()));
-	}
-	
-	public String getDecodedString() {
-		return new String(Base64.getDecoder().decode(encodedString.getBytes()));
 	}
 }
