@@ -2,10 +2,10 @@ package requests;
 
 import auth.Token;
 
-public class DoSomethingRequest implements Request {
+public class GetLoggedInUserRequest implements Request {
 	Token token;
 
-	public DoSomethingRequest(Token token) {
+	public GetLoggedInUserRequest(Token token) {
 		super();
 		this.token = token;
 	}

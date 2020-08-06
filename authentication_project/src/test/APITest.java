@@ -1,3 +1,4 @@
+package test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.SQLException;
@@ -10,11 +11,11 @@ import api.API;
 import auth.Token;
 import model.Role;
 import model.User;
-import requests.DoSomethingRequest;
+import requests.GetLoggedInUserRequest;
 import requests.SignInRequest;
 import requests.SignOutRequest;
 import requests.SignUpRequest;
-import responses.DoSomethingResponse;
+import responses.GetLoggedInUserResponse;
 import responses.Result;
 import responses.SignInResponse;
 import responses.SignOutResponse;
@@ -57,27 +58,28 @@ class APITest {
 	}
 	
 	@Test
-	void do_something_failure_wrong_token() throws SQLException {
+	void get_loggedin_user_failure_wrong_token() throws SQLException {
 		Token wrongToken = new Token(new User("user_dummy", "Password", Role.ADMIN));
-		DoSomethingResponse resp2 = (DoSomethingResponse)API.call(new DoSomethingRequest(wrongToken));
+		GetLoggedInUserResponse resp2 = (GetLoggedInUserResponse)API.call(new GetLoggedInUserRequest(wrongToken));
 		assertEquals(resp2.getResult(), Result.FAILURE);
 		assertEquals(resp2.getStatus(), Status.AUTHORIZATION_ERROR);
 	}
 	
 	@Test
-	void do_something_failure_empty_token() throws SQLException {
-		DoSomethingResponse resp2 = (DoSomethingResponse)API.call(new DoSomethingRequest(null));
+	void get_loggedin_user_failure_empty_token() throws SQLException {
+		GetLoggedInUserResponse resp2 = (GetLoggedInUserResponse)API.call(new GetLoggedInUserRequest(null));
 		assertEquals(resp2.getResult(), Result.FAILURE);
 		assertEquals(resp2.getStatus(), Status.AUTHORIZATION_ERROR);
 	}
 	
 	@Test
-	void do_something_success() {
+	void get_loggedin_user_success() {
 		SignInResponse resp = (SignInResponse)API.call(new SignInRequest(loggedInUser.getName(), loggedInUser.getPassword()));
 		Token token = resp.getToken();
-		DoSomethingResponse resp2 = (DoSomethingResponse)API.call(new DoSomethingRequest(token));
+		GetLoggedInUserResponse resp2 = (GetLoggedInUserResponse)API.call(new GetLoggedInUserRequest(token));
 		assertEquals(resp2.getResult(), Result.SUCCESS);
 		assertEquals(resp2.getStatus(), Status.DO_SOMETHING_SUCCESS);
+		assertEquals(resp2.getUser().getName(), loggedInUser.getName());
 		API.call(new SignOutRequest(token));
 	}
 	

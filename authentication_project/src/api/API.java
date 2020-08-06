@@ -9,12 +9,12 @@ import exceptions.PasswordInvalidException;
 import exceptions.UserNameInvalidException;
 import model.Role;
 import model.User;
-import requests.DoSomethingRequest;
+import requests.GetLoggedInUserRequest;
 import requests.Request;
 import requests.SignInRequest;
 import requests.SignOutRequest;
 import requests.SignUpRequest;
-import responses.DoSomethingResponse;
+import responses.GetLoggedInUserResponse;
 import responses.NotFoundResponse;
 import responses.Response;
 import responses.Result;
@@ -33,8 +33,8 @@ public class API {
 			return signIn((SignInRequest) request);
 		} else if (request instanceof SignOutRequest) {
 			return signOut((SignOutRequest) request);
-		} else if (request instanceof DoSomethingRequest) {
-			return doSomething((DoSomethingRequest) request);
+		} else if (request instanceof GetLoggedInUserRequest) {
+			return getLoggedInUser((GetLoggedInUserRequest) request);
 		} else {
 			return new NotFoundResponse(Result.FAILURE, Status.NOT_FOUND_ERROR);
 		}
@@ -65,7 +65,7 @@ public class API {
 			return new SignInResponse(Result.FAILURE, Status.PASSWORD_ERROR);
 		}
 		try {
-			user = user.getUserFromDB();
+			user = user.checkIfUserExistsAndReturn();
 			return new SignInResponse(Result.SUCCESS, Status.USER_SUCCESSFULLY_LOGGEDIN, new Token(user));
 		} catch (SQLException e) {
 			return new SignInResponse(Result.FAILURE, Status.DB_ERROR);
@@ -85,19 +85,19 @@ public class API {
 		return new SignOutResponse(Result.SUCCESS, Status.USER_LOGOUT_SUCCESS);
 	}
 	
-	public static DoSomethingResponse doSomething(DoSomethingRequest request) {
+	public static GetLoggedInUserResponse getLoggedInUser(GetLoggedInUserRequest request) {
 		// authorizer
 		try {
-			System.out.println("======================");
-			System.out.println("isTokenValid: " + isTokenValid(request.getToken()));
-			System.out.println("Token decoded: " + request.getToken().getDecodedString());
-			System.out.println("======================");
-			System.out.println();
+			isTokenValid(request.getToken());
+			String username = request.getToken().getDecodedString().split(" ")[0];
+			User user = new User(username).getUserFromDB();
+			return new GetLoggedInUserResponse(Result.SUCCESS, Status.DO_SOMETHING_SUCCESS, user);
 		} catch (AuthorizationException e) {
-			return new DoSomethingResponse(Result.FAILURE, Status.AUTHORIZATION_ERROR);
+			return new GetLoggedInUserResponse(Result.FAILURE, Status.AUTHORIZATION_ERROR);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			return new GetLoggedInUserResponse(Result.FAILURE, Status.DB_ERROR);
 		}
-		
-		return new DoSomethingResponse(Result.SUCCESS, Status.DO_SOMETHING_SUCCESS);
 	}
 	
 	private static boolean isTokenValid(Token token) throws AuthorizationException {
