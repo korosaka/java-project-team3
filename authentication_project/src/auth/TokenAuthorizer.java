@@ -1,17 +1,12 @@
 package auth;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
 
 import db.DBConnection;
 import exceptions.AuthorizationException;
@@ -36,13 +31,12 @@ public class TokenAuthorizer extends Authorizer {
 			Connection conn = DBConnection.getConnection();
 			String tokenQuery = "SELECT * FROM Token WHERE id = ?";
 			PreparedStatement preStmt = conn.prepareStatement(tokenQuery);
-			preStmt.setString(1, token.getEncodedString());
+			preStmt.setString(1, token.getJwtToken());
 			ResultSet rs = preStmt.executeQuery();
 			rs.next();
 			Time createdAt = rs.getTime("created_at");
 
-			String[] decodedStrArr = token.getDecodedString().split(" ");
-			String userName = decodedStrArr[0];
+			String userName = token.parseJwt().getSubject();
 			Duration p = Duration.between(createdAt.toLocalTime(), LocalDateTime.now());
 			if ((p.getSeconds()-28800) > EXPIRATION_DURATION) {
 				System.out.println("Session Expired");
