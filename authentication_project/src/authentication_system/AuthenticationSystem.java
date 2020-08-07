@@ -77,7 +77,7 @@ public class AuthenticationSystem {
 			}
 			}
 			}
-		}
+			}
 	
 	private int inputNum() {
 		int num = -1;
