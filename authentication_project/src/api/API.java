@@ -1,6 +1,7 @@
 package api;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import auth.Token;
 import auth.TokenAuthorizer;
@@ -9,11 +10,13 @@ import exceptions.PasswordInvalidException;
 import exceptions.UserNameInvalidException;
 import model.Role;
 import model.User;
+import requests.GetAllUserNameRequest;
 import requests.GetLoggedInUserRequest;
 import requests.Request;
 import requests.SignInRequest;
 import requests.SignOutRequest;
 import requests.SignUpRequest;
+import responses.GetAllUserNameResponse;
 import responses.GetLoggedInUserResponse;
 import responses.NotFoundResponse;
 import responses.Response;
@@ -35,6 +38,8 @@ public class API {
 			return signOut((SignOutRequest) request);
 		} else if (request instanceof GetLoggedInUserRequest) {
 			return getLoggedInUser((GetLoggedInUserRequest) request);
+		} else if (request instanceof GetAllUserNameRequest) {
+			return getAllUserName((GetAllUserNameRequest) request);
 		} else {
 			return new NotFoundResponse(Result.FAILURE, Status.NOT_FOUND_ERROR);
 		}
@@ -100,6 +105,22 @@ public class API {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			return new GetLoggedInUserResponse(Result.FAILURE, Status.DB_ERROR);
+		}
+	}
+	
+	public static GetAllUserNameResponse getAllUserName(GetAllUserNameRequest request) {
+		// authorizer
+		try {
+			isTokenValid(request.getToken());
+			String username = request.getToken().parseJwt().getSubject();
+			User user = new User(username).getUserFromDB();
+			ArrayList<User> users = User.getAllUserFromDB(); 
+			return new GetAllUserNameResponse(Result.SUCCESS, Status.DO_SOMETHING_SUCCESS, users);
+		} catch (AuthorizationException e) {
+			return new GetAllUserNameResponse(Result.FAILURE, Status.AUTHORIZATION_ERROR);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			return new GetAllUserNameResponse(Result.FAILURE, Status.DB_ERROR);
 		}
 	}
 	

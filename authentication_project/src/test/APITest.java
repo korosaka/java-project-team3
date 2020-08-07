@@ -159,6 +159,8 @@ class APITest {
 		assertEquals(resp.getStatus(), Status.USERNAME_ERROR);
 		assertNull(resp.getToken());
 	}
+	
+	
 
 	
 }
