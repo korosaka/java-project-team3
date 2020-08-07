@@ -6,10 +6,12 @@ import java.util.Scanner;
 import api.API;
 import auth.Token;
 import model.Role;
+import requests.GetAllUserNameRequest;
 import requests.GetLoggedInUserRequest;
 import requests.SignInRequest;
 import requests.SignOutRequest;
 import requests.SignUpRequest;
+import responses.GetAllUserNameResponse;
 import responses.GetLoggedInUserResponse;
 import responses.SignInResponse;
 import responses.SignOutResponse;
@@ -58,6 +60,7 @@ public class AuthenticationSystem {
 				System.out.println("You are logged in. Choose from below.");
 				System.out.println("Sign out[1]");
 				System.out.println("get LoggedIn user info[2]");
+				System.out.println("get LoggedIn all users name[3]");
 				System.out.println("======================");
 				System.out.println();
 				int num2 = inputNum();
@@ -69,10 +72,12 @@ public class AuthenticationSystem {
 					signOut();
 				} else if (num2 == 2) {
 					getLoggedInUser();
-				}
+				}else if (num2 == 3) {
+					getAllUserName();
+			}
+			}
 			}
 		}
-	}
 	
 	private int inputNum() {
 		int num = -1;
@@ -101,6 +106,19 @@ public class AuthenticationSystem {
 		switch(resp.getResult()) {
 		case SUCCESS:
 			System.out.println(resp.getUser());
+			break;
+		case FAILURE:
+		default:
+			System.err.println(resp.getStatus());
+			setToken(null);
+		}
+	}
+	
+	private void getAllUserName() {
+		GetAllUserNameResponse resp = (GetAllUserNameResponse)API.call(new GetAllUserNameRequest(token));
+		switch(resp.getResult()) {
+		case SUCCESS:
+			System.out.println(resp.usersName());
 			break;
 		case FAILURE:
 		default:

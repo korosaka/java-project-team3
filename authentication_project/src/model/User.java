@@ -5,7 +5,10 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Base64;
+
+import com.mysql.cj.xdevapi.Statement;
 
 import db.DBConnection;
 import utils.PasswordUtil;
@@ -61,10 +64,20 @@ public class User {
 		preStmt.setString(1, getName());
 		ResultSet rs = preStmt.executeQuery();
 		rs.next();
-		setRole(rs.getBoolean(4) == true ? Role.ADMIN : Role.NORMAL);
 		conn.close();
 		return this;
 	}
+	
+//	public ArrayList<User> getAllUserFromDB() throws SQLException {
+//		String query = "SELECT * FROM User WHERE name = ?";
+//		Connection conn = DBConnection.getConnection();
+//		PreparedStatement preStmt = conn.prepareStatement(query);
+//		preStmt.setString(1, getName());
+//		ResultSet rs = preStmt.executeQuery();
+//		rs.next();
+//		conn.close();
+//		return this;
+//	}
 	
 	@Override
 	public String toString() {
