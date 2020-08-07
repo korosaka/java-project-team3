@@ -70,6 +70,8 @@ public class User {
 		preStmt.setString(1, getName());
 		ResultSet rs = preStmt.executeQuery();
 		rs.next();
+		Role role = rs.getBoolean("isAdmin") ? Role.ADMIN : Role.NORMAL;
+		setRole(role);
 		conn.close();
 		return this;
 	}

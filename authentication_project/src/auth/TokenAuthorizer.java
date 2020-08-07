@@ -15,7 +15,7 @@ public class TokenAuthorizer extends Authorizer {
 
 	private Token token;
 	
-	private final static int EXPIRATION_DURATION = 60;
+	private final static int EXPIRATION_DURATION = 30;
 	
 	public TokenAuthorizer(Token token) {
 		super();
@@ -28,34 +28,42 @@ public class TokenAuthorizer extends Authorizer {
 		if (token == null) throw new AuthorizationException();
 		
 		try {
+			// token existence check
 			Connection conn = DBConnection.getConnection();
 			String tokenQuery = "SELECT * FROM Token WHERE id = ?";
 			PreparedStatement preStmt = conn.prepareStatement(tokenQuery);
 			preStmt.setString(1, token.getJwtToken());
 			ResultSet rs = preStmt.executeQuery();
-			rs.next();
-			Time createdAt = rs.getTime("created_at");
-
-			String userName = token.parseJwt().getSubject();
-			Duration p = Duration.between(createdAt.toLocalTime(), LocalDateTime.now());
-			if ((p.getSeconds()-28800) > EXPIRATION_DURATION) {
-				System.out.println("Session Expired");
+			if (!rs.next()) {
+				System.out.println("Token not exists");
+				conn.close();
 				token.remove();
 				throw new AuthorizationException();
 			}
-			
+			// expiration check
+			Time createdAt = rs.getTime("created_at");
+			Duration p = Duration.between(createdAt.toLocalTime(), LocalDateTime.now());
+			System.out.println("until expiration: " + (p.getSeconds()-28800));
+			if ((p.getSeconds()-28800) > EXPIRATION_DURATION) {
+				System.out.println("Session Expired");
+				conn.close();
+				token.remove();
+				throw new AuthorizationException();
+			}
+			// user existence check
+			String userName = token.parseJwt().getSubject();
 			String userQuery = "SELECT * FROM User WHERE name = ?";
 			preStmt = conn.prepareStatement(userQuery);
 			preStmt.setString(1, userName);
 			rs = preStmt.executeQuery();
-			rs.next();
-			int id = rs.getInt("id");
-			conn.close();
-			if (id <= 0) {
+			if (!rs.next()) {
+				System.out.println("user invalid");
+				conn.close();
 				token.remove();
 				throw new AuthorizationException();
 			}
-			return id > 0;
+			conn.close();
+			return true;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
