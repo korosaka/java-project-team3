@@ -53,6 +53,7 @@ public class Token {
 				.setExpiration(Date.from(now.plus(5l, ChronoUnit.MINUTES)))
 				.signWith(SignatureAlgorithm.HS256, hmacKey)
 				.compact();
+		System.out.println(jwtToken);
 		return jwtToken;
 	}
 	

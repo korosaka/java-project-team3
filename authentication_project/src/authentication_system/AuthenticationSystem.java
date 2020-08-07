@@ -6,6 +6,7 @@ import java.util.Scanner;
 import api.API;
 import auth.Token;
 import model.Role;
+import model.User;
 import requests.GetAllUserNameRequest;
 import requests.GetLoggedInUserRequest;
 import requests.SignInRequest;
@@ -75,10 +76,10 @@ public class AuthenticationSystem {
 					getLoggedInUser();
 				}else if (num2 == 3) {
 					getAllUserName();
+				}
 			}
-			}
-			}
-			}
+		}
+	}
 	
 	private int inputNum() {
 		int num = -1;
@@ -119,7 +120,9 @@ public class AuthenticationSystem {
 		GetAllUserNameResponse resp = (GetAllUserNameResponse)API.call(new GetAllUserNameRequest(token));
 		switch(resp.getResult()) {
 		case SUCCESS:
-			System.out.println(resp.getAllUsers());
+			for (User user: resp.getAllUsers()) {
+				System.out.println(user);
+			}
 			break;
 		case FAILURE:
 		default:
