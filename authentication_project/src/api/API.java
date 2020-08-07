@@ -1,6 +1,7 @@
 package api;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import auth.Token;
 import auth.TokenAuthorizer;
@@ -37,6 +38,8 @@ public class API {
 			return signOut((SignOutRequest) request);
 		} else if (request instanceof GetLoggedInUserRequest) {
 			return getLoggedInUser((GetLoggedInUserRequest) request);
+		} else if (request instanceof GetAllUserNameRequest) {
+			return getAllUserName((GetAllUserNameRequest) request);
 		} else {
 			return new NotFoundResponse(Result.FAILURE, Status.NOT_FOUND_ERROR);
 		}
@@ -111,7 +114,8 @@ public class API {
 			isTokenValid(request.getToken());
 			String username = request.getToken().parseJwt().getSubject();
 			User user = new User(username).getUserFromDB();
-			return new GetAllUserNameResponse(Result.SUCCESS, Status.DO_SOMETHING_SUCCESS);
+			ArrayList<User> users = User.getAllUserFromDB(); 
+			return new GetAllUserNameResponse(Result.SUCCESS, Status.DO_SOMETHING_SUCCESS, users);
 		} catch (AuthorizationException e) {
 			return new GetAllUserNameResponse(Result.FAILURE, Status.AUTHORIZATION_ERROR);
 		} catch (SQLException e) {

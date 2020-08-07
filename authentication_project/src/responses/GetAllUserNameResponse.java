@@ -6,11 +6,11 @@ import model.User;
 
 public class GetAllUserNameResponse extends Response {
 		
-	ArrayList<User> usersName = new ArrayList<User>();
+	ArrayList<User> users;
 
-	public GetAllUserNameResponse(Result result, Status status, ArrayList<User> userName) {
+	public GetAllUserNameResponse(Result result, Status status, ArrayList<User> users) {
 		super(result, status);
-		this.usersName = usersName;
+		this.users = users;
 	}
 
 	public GetAllUserNameResponse(Result result, Status status) {
@@ -18,7 +18,7 @@ public class GetAllUserNameResponse extends Response {
 		// TODO Auto-generated constructor stub
 	}
 
-	public ArrayList<User> usersName() {
-		return usersName;
+	public ArrayList<User> getAllUsers() {
+		return users;
 	}
 }

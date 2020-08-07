@@ -3,12 +3,12 @@ package model;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
 
-import com.mysql.cj.xdevapi.Statement;
 
 import db.DBConnection;
 import utils.PasswordUtil;
@@ -23,6 +23,12 @@ public class User {
 		super();
 		setName(name);
 		setPassword(password);
+		setRole(role);
+	}
+	
+	public User(String name, Role role) {
+		super();
+		setName(name);
 		setRole(role);
 	}
 	
@@ -68,16 +74,23 @@ public class User {
 		return this;
 	}
 	
-//	public ArrayList<User> getAllUserFromDB() throws SQLException {
-//		String query = "SELECT * FROM User WHERE name = ?";
-//		Connection conn = DBConnection.getConnection();
-//		PreparedStatement preStmt = conn.prepareStatement(query);
-//		preStmt.setString(1, getName());
-//		ResultSet rs = preStmt.executeQuery();
-//		rs.next();
-//		conn.close();
-//		return this;
-//	}
+	public static ArrayList<User> getAllUserFromDB() throws SQLException {
+		String query = "SELECT * FROM User";
+		Connection conn = DBConnection.getConnection();
+		Statement creStmt = conn.createStatement();
+		ResultSet rs = creStmt.executeQuery(query);
+		ArrayList<User> users = new ArrayList<User> ();
+		while(rs.next()) {
+			String name = rs.getString("name");
+			boolean isAdmin = rs.getBoolean("isAdmin");
+			
+			User user = new User(name, isAdmin ? Role.ADMIN : Role.NORMAL);
+			users.add(user);
+		}
+		
+		conn.close();
+		return users;
+	}
 	
 	@Override
 	public String toString() {

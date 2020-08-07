@@ -60,7 +60,7 @@ public class AuthenticationSystem {
 				System.out.println("You are logged in. Choose from below.");
 				System.out.println("Sign out[1]");
 				System.out.println("get LoggedIn user info[2]");
-				System.out.println("get LoggedIn all users name[3]");
+				System.out.println("get all users[3]");
 				System.out.println("======================");
 				System.out.println();
 				int num2 = inputNum();
@@ -118,7 +118,7 @@ public class AuthenticationSystem {
 		GetAllUserNameResponse resp = (GetAllUserNameResponse)API.call(new GetAllUserNameRequest(token));
 		switch(resp.getResult()) {
 		case SUCCESS:
-			System.out.println(resp.usersName());
+			System.out.println(resp.getAllUsers());
 			break;
 		case FAILURE:
 		default:
